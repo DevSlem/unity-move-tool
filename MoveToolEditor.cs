@@ -6,6 +6,9 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// It's an editor for MonoBehaviour. It sets position handles for the fields that define MoveToolAttribute.
+/// </summary>
 [CustomEditor(typeof(MonoBehaviour), true)]
 public class MoveToolEditor : Editor
 {
