@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 /// <summary>
-/// Display the position mode of MoveToolAttribute.
+/// Display the position mode of MoveToolAttribute on editor inspector.
 /// </summary>
 [CustomPropertyDrawer(typeof(MoveToolAttribute), true)]
 public class MoveToolDrawer : PropertyDrawer
