@@ -39,35 +39,34 @@ public class MoveToolEditor : Editor
             if (attr == null)
                 continue;
 
-            SetMoveToolAvailableField((field, -1), (field, -1), attr, this.target);
+            SetMoveToolAvailableField((field, -1), (this.target, field, -1), attr);
         }
     }
 
     /// <summary>
     /// Set Position Handles in the unity editor scene view.
     /// </summary>
-    /// <param name="top">top level field declared in the MonoBehaviour script</param>
-    /// <param name="current">current field checked now</param>
-    /// <param name="attr">applied to top level field</param>
-    /// <param name="obj">instance that declare the current field</param>
-    private void SetMoveToolAvailableField((FieldInfo info, int index) top, (FieldInfo info, int index) current, MoveToolAttribute attr, object obj)
+    /// <param name="top">top level field declared in the MonoBehaviour component</param>
+    /// <param name="current">current field checked now, current.obj is the instance where current.field is declared</param>
+    /// <param name="attr">defined for the top level field</param>
+    private void SetMoveToolAvailableField((FieldInfo field, int index) top, (object obj, FieldInfo field, int index) current, MoveToolAttribute attr)
     {
         // If it's vector, call immediately SetPositionHandle() method and then terminate.
-        if (IsVector(current.info.FieldType))
+        if (IsVector(current.field.FieldType))
         {
             string label = string.Empty;
             if (attr.LabelOn)
             {
-                label = string.IsNullOrEmpty(attr.Label) ? AddIndexLabel(top.info.Name.InspectorLabel(), top.index) : AddIndexLabel(attr.Label, top.index);
-                if (top.info != current.info)
-                    label += $" - {AddIndexLabel(current.info.Name.InspectorLabel(), current.index)}";
+                label = string.IsNullOrEmpty(attr.Label) ? AddIndexLabel(top.field.Name.InspectorLabel(), top.index) : AddIndexLabel(attr.Label, top.index);
+                if (top.field != current.field)
+                    label += $" - {AddIndexLabel(current.field.Name.InspectorLabel(), current.index)}";
             }
 
-            SetPositionHandle(current.info, label, attr.LocalMode, obj);
+            SetVectorField(current.obj, current.field, label, attr.LocalMode);
             return;
         }
 
-        var type = current.info.FieldType; //current field type
+        var type = current.field.FieldType; //current field type
 
         // Array
         if (type.IsArray)
@@ -77,16 +76,16 @@ public class MoveToolEditor : Editor
                 return;
 
             var serializedFields = GetSerializedFields(type);
-            var array = current.info.GetValue(obj) as Array;
+            var array = current.field.GetValue(current.obj) as Array;
             for (int i = 0; i < array.Length; i++)
             {
-                if (top.info == current.info)
+                if (top.field == current.field)
                     top.index = i;
 
                 // Recursive call for each field declared in the element type of current array
                 foreach (var nextField in serializedFields)
                 {
-                    SetMoveToolAvailableField(top, (nextField, i), attr, array.GetValue(i));
+                    SetMoveToolAvailableField(top, (array.GetValue(i), nextField, i), attr);
                 }
             }
         }
@@ -98,17 +97,17 @@ public class MoveToolEditor : Editor
                 return;
 
             var serializedFields = GetSerializedFields(type);
-            var collection = current.info.GetValue(obj) as IEnumerable;
+            var collection = current.field.GetValue(current.obj) as IEnumerable;
             int i = 0;
             foreach (var element in collection)
             {
-                if (top.info == current.info)
+                if (top.field == current.field)
                     top.index = i;
 
                 // Recursive call for each field declared in the element type of current collection
                 foreach (var nextField in serializedFields)
                 {
-                    SetMoveToolAvailableField(top, (nextField, i), attr, element);
+                    SetMoveToolAvailableField(top, (element, nextField, i), attr);
                 }
                 i++;
             }
@@ -124,7 +123,7 @@ public class MoveToolEditor : Editor
             // Recursive call for each field declared in the current field type
             foreach (var nextField in serializedFields)
             {
-                SetMoveToolAvailableField(top, (nextField, -1), attr, current.info.GetValue(obj));
+                SetMoveToolAvailableField(top, (current.field.GetValue(current.obj), nextField, -1), attr);
             }
         }
     }
@@ -153,7 +152,7 @@ public class MoveToolEditor : Editor
     }
 
     // Add position handles of this field to unity editor scene view. This field is okay whether vector field or vector collection field.
-    private void SetPositionHandle(FieldInfo field, string labelText, bool localMode, object obj)
+    private void SetVectorField(object obj, FieldInfo field, string label, bool localMode)
     {
         // If it's local mode, then origin point is set to target(MonoBehaviour) position.
         Vector3 origin = localMode ? (this.target as MonoBehaviour).transform.position : Vector3.zero;
@@ -164,16 +163,12 @@ public class MoveToolEditor : Editor
         if (fieldType == typeof(Vector3))
         {
             Vector3 oldValue = (Vector3)field.GetValue(obj);
-            Handles.Label(origin + oldValue, labelText, style);
-            Vector3 newValue = Handles.PositionHandle(origin + oldValue, Quaternion.identity) - origin;
-            field.SetValue(obj, newValue);
+            SetHandleVector3(label, origin, oldValue, obj, field, v => field.SetValue(obj, v));
         }
         else if (fieldType == typeof(Vector2))
         {
             Vector2 oldValue = (Vector2)field.GetValue(obj);
-            Handles.Label((Vector2)origin + oldValue, labelText, style);
-            Vector2 newValue = Handles.PositionHandle((Vector2)origin + oldValue, Quaternion.identity) - origin;
-            field.SetValue(obj, newValue);
+            SetHandleVector2(label, origin, oldValue, obj, field, v => field.SetValue(obj, v));
         }
         // Array
         else if (fieldType.GetElementType() == typeof(Vector3))
@@ -181,14 +176,12 @@ public class MoveToolEditor : Editor
             var array = field.GetValue(obj) as Array;
             for (int i = 0; i < array.Length; i++)
             {
-                string temp = labelText;
-                if (!string.IsNullOrEmpty(labelText))
+                string temp = label;
+                if (!string.IsNullOrEmpty(label))
                     temp += $" [{i}]";
 
                 Vector3 oldValue = (Vector3)array.GetValue(i);
-                Handles.Label(origin + oldValue, temp, style);
-                Vector3 newValue = Handles.PositionHandle(origin + oldValue, Quaternion.identity) - origin;
-                array.SetValue(newValue, i);
+                SetHandleVector3(temp, origin, oldValue, obj, field, v => array.SetValue(v, i));
             }
         }
         else if (fieldType.GetElementType() == typeof(Vector2))
@@ -196,14 +189,12 @@ public class MoveToolEditor : Editor
             var array = field.GetValue(obj) as Array;
             for (int i = 0; i < array.Length; i++)
             {
-                string temp = labelText;
-                if (!string.IsNullOrEmpty(labelText))
+                string temp = label;
+                if (!string.IsNullOrEmpty(label))
                     temp += $" [{i}]";
 
                 Vector2 oldValue = (Vector2)array.GetValue(i);
-                Handles.Label((Vector2)origin + oldValue, temp, style);
-                Vector2 newValue = Handles.PositionHandle((Vector2)origin + oldValue, Quaternion.identity) - origin;
-                array.SetValue(newValue, i);
+                SetHandleVector2(temp, origin, oldValue, obj, field, v => array.SetValue(v, i));
             }
         }
         // List
@@ -212,13 +203,12 @@ public class MoveToolEditor : Editor
             var list = field.GetValue(obj) as List<Vector3>;
             for (int i = 0; i < list.Count; i++)
             {
-                string temp = labelText;
-                if (!string.IsNullOrEmpty(labelText))
+                string temp = label;
+                if (!string.IsNullOrEmpty(label))
                     temp += $" [{i}]";
 
                 Vector3 oldValue = list[i];
-                Handles.Label(origin + oldValue, temp, style);
-                list[i] = Handles.PositionHandle(origin + oldValue, Quaternion.identity) - origin;
+                SetHandleVector3(temp, origin, oldValue, obj, field, v => list[i] = v);
             }
         }
         else if (fieldType == typeof(List<Vector2>))
@@ -226,22 +216,63 @@ public class MoveToolEditor : Editor
             var list = field.GetValue(obj) as List<Vector2>;
             for (int i = 0; i < list.Count; i++)
             {
-                string temp = labelText;
-                if (!string.IsNullOrEmpty(labelText))
+                string temp = label;
+                if (!string.IsNullOrEmpty(label))
                     temp += $" [{i}]";
 
                 Vector2 oldValue = list[i];
-                Handles.Label((Vector2)origin + oldValue, temp, style);
-                list[i] = Handles.PositionHandle((Vector2)origin + oldValue, Quaternion.identity) - origin;
+                SetHandleVector2(temp, origin, oldValue, obj, field, v => list[i] = v);
             }
         }
-        // if you want to use position handles of other serializable collection, then add here or modify list part.
+        // If you want to use position handles of other serializable collection, then add here or modify list part.
+    }
+
+    // Create Position Handle for Vector3. If it's changed, set and record new value.
+    // You need to implement a mechanism to set the new Vector3 value in setValue delegate.
+    private void SetHandleVector3(string label, Vector3 origin, Vector3 oldValue, object obj, FieldInfo field, Action<Vector3> setValue)
+    {
+        Handles.Label(origin + oldValue, label, style);
+        EditorGUI.BeginChangeCheck();
+        Vector3 newValue = Handles.PositionHandle(origin + oldValue, Quaternion.identity) - origin;
+        if (EditorGUI.EndChangeCheck())
+        {
+            // enable ctrl + z & set dirty
+            Undo.RecordObject(target, $"{target.name}_{target.GetInstanceID()}_{obj.GetHashCode()}_{field.Name}");
+
+            setValue(newValue);
+
+            // In the unity document, if the object may be part of a Prefab instance, we have to call this method.
+            // But, even if i don't call this method, it works well. I don't know the reason.
+            PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+        }
+    }
+
+    // Create Position Handle for Vector2. If it's changed, set and record new value.
+    // You need to implement a mechanism to set the new Vector2 value in setValue delegate.
+    private void SetHandleVector2(string label, Vector2 origin, Vector2 oldValue, object obj, FieldInfo field, Action<Vector2> setValue)
+    {
+        Handles.Label(origin + oldValue, label, style);
+        EditorGUI.BeginChangeCheck();
+        Vector2 newValue = (Vector2)Handles.PositionHandle(origin + oldValue, Quaternion.identity) - origin;
+        if (EditorGUI.EndChangeCheck())
+        {
+            // enable ctrl + z & set dirty
+            Undo.RecordObject(target, $"{target.name}_{target.GetInstanceID()}_{obj.GetHashCode()}_{field.Name}");
+
+            setValue(newValue);
+
+            // In the unity document, if the object may be part of a Prefab instance, we have to call this method.
+            // But, even if i don't call this method, it works well. I don't know the reason.
+            PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+        }
     }
 
     // Check if it's vector type or vector collection type.
     private bool IsVector(Type type) => type == typeof(Vector2) || type == typeof(Vector3) ||
         typeof(IEnumerable<Vector3>).IsAssignableFrom(type) || typeof(IEnumerable<Vector2>).IsAssignableFrom(type);
 
+    // Add index label to this label parameter.
+    // e.g. Label [index]
     private string AddIndexLabel(string label, int index)
     {
         if (index >= 0)
