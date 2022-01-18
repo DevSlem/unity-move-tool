@@ -53,12 +53,15 @@ public class MyCustomType
 ## MoveToolEditor
 
 It's an editor for `MonoBehaviour`. It sets position handles for the fields that define `MoveToolAttribute`.  
+Just define `MoveToolAttribute` for the field, then you'll be able to control position handle for the field.
 
 > Please note that if you want to use another editor at the same time, you must create a `MoveToolEditor` instance, then call both `MoveToolEditor.OnEnalbe()` and `MoveToolEditor.OnSceneGUI()`.  
 > It's also okay to call `MoveToolEditor.SetMoveTool()` instead of `MoveToolEditor.OnSceneGUI()`.
 
 
 ### Example Code
+
+If you don't use another editor for `Another`, you don't need to create a `MoveToolEditor` editor.
 
 ```cs
 [CustomEditor(typeof(Another)), CanEditMultipleObjects]
