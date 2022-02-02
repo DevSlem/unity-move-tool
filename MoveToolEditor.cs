@@ -49,7 +49,8 @@ public class MoveToolEditor : Editor
     /// <param name="top">top level field declared in the MonoBehaviour component</param>
     /// <param name="current">current field checked now, current.obj is the instance where current.field is declared</param>
     /// <param name="attr">defined for the top level field</param>
-    private void SetMoveToolAvailableField((FieldInfo field, int index) top, (object obj, FieldInfo field, int index) current, MoveToolAttribute attr)
+    /// <param name="n">Don't set any value. It's the count of recursive calls.</param>
+    private void SetMoveToolAvailableField((FieldInfo field, int index) top, (object obj, FieldInfo field, int index) current, MoveToolAttribute attr, int n = 0)
     {
         // If it's vector, call immediately SetPositionHandle() method and then terminate.
         if (IsVector(current.field.FieldType))
@@ -59,7 +60,7 @@ public class MoveToolEditor : Editor
             {
                 label = string.IsNullOrEmpty(attr.Label) ? AddIndexLabel(top.field.Name.InspectorLabel(), top.index) : AddIndexLabel(attr.Label, top.index);
                 if (top.field != current.field)
-                    label += $" - {AddIndexLabel(current.field.Name.InspectorLabel(), current.index)}";
+                    label += $" - {(n > 1 ? AddIndexLabel(current.field.Name.InspectorLabel(), current.index, true) : current.field.Name.InspectorLabel())}";
             }
 
             SetVectorField(current.obj, current.field, label, attr.LocalMode);
@@ -83,13 +84,14 @@ public class MoveToolEditor : Editor
                     top.index = i;
 
                 // Recursive call for each field declared in the element type of current array
+                object obj = array.GetValue(i);
                 foreach (var nextField in serializedFields)
-                {
-                    SetMoveToolAvailableField(top, (array.GetValue(i), nextField, i), attr);
-                }
+                    SetMoveToolAvailableField(top, (obj, nextField, i), attr, n + 1);
+                if (type.IsValueType)
+                    array.SetValue(obj, i);
             }
         }
-        // List(It's okay to check IEnumerable or ICollection type if you want to use other collection.)
+        // List
         else if (type.IsGenericType && typeof(IList).IsAssignableFrom(type))
         {
             type = type.GetGenericArguments()[0];
@@ -97,34 +99,36 @@ public class MoveToolEditor : Editor
                 return;
 
             var serializedFields = GetSerializedFields(type);
-            var collection = current.field.GetValue(current.obj) as IEnumerable;
-            int i = 0;
-            foreach (var element in collection)
+            var list = current.field.GetValue(current.obj) as IList;
+            for (int i = 0; i < list.Count; i++)
             {
                 if (top.field == current.field)
                     top.index = i;
 
-                // Recursive call for each field declared in the element type of current collection
+                // Recursive call for each field declared in the element type of current list
+                object obj = list[i];
                 foreach (var nextField in serializedFields)
-                {
-                    SetMoveToolAvailableField(top, (element, nextField, i), attr);
-                }
-                i++;
+                    SetMoveToolAvailableField(top, (obj, nextField, i), attr, n + 1);
+                if (type.IsValueType)
+                    list[i] = obj;
             }
         }
         // Just single field
         else
         {
             if (!HasAvailableAttribute(type))
-                return;
+                return;       
 
             var serializedFields = GetSerializedFields(type);
 
             // Recursive call for each field declared in the current field type
+            object obj = current.field.GetValue(current.obj);
             foreach (var nextField in serializedFields)
-            {
-                SetMoveToolAvailableField(top, (current.field.GetValue(current.obj), nextField, -1), attr);
-            }
+                SetMoveToolAvailableField(top, (obj, nextField, -1), attr, n + 1);
+
+            // If current field is a value type, you must copy boxed obj to this field. It's because obj isn't the field instance itself, but new boxed instance.
+            if (type.IsValueType)
+                current.field.SetValue(current.obj, obj);
         }
     }
 
@@ -162,7 +166,7 @@ public class MoveToolEditor : Editor
         // Field
         if (fieldType == typeof(Vector3))
         {
-            Vector3 oldValue = (Vector3)field.GetValue(obj);
+            Vector3 oldValue = (Vector3)field.GetValue(obj);      
             SetHandleVector3(label, origin, oldValue, obj, field, v => field.SetValue(obj, v));
         }
         else if (fieldType == typeof(Vector2))
@@ -273,10 +277,19 @@ public class MoveToolEditor : Editor
 
     // Add index label to this label parameter.
     // e.g. Label [index]
-    private string AddIndexLabel(string label, int index)
+    private string AddIndexLabel(string label, int index, bool isFront = false)
     {
         if (index >= 0)
-            label += $" [{index}]";
+        {
+            if (isFront)
+            {
+                label = $"[{index}] {label}";
+            }
+            else
+            {
+                label += $" [{index}]";
+            }
+        }
 
         return label;
     }
