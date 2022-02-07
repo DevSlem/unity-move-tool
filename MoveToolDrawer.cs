@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections;
 using System.Linq;
 using UnityEditor;
@@ -85,3 +86,5 @@ public class MoveToolDrawer : PropertyDrawer
         EditorGUILayout.Space(this.modeInfoHeight);
     }
 }
+
+#endif
