@@ -11,7 +11,7 @@ using KgmSlem.Extensions;
 namespace KgmSlem.UnityEditor
 {
     /// <summary>
-    /// It's an editor for MonoBehaviour. It sets position handles for the fields that define MoveToolAttribute.
+    /// It sets position handles for the fields that define MoveToolAttribute. Note that it's an editor for MonoBehaviour. 
     /// </summary>
     [CustomEditor(typeof(MonoBehaviour), true)]
     public class MoveToolEditor : Editor
@@ -67,7 +67,7 @@ namespace KgmSlem.UnityEditor
                         label += $" - {(n > 1 ? AddIndexLabel(current.field.Name.InspectorLabel(), current.index, true) : current.field.Name.InspectorLabel())}";
                 }
 
-                SetVectorField(current.obj, current.field, label, attr.LocalMode);
+                SetVectorField(current.obj, current.field, label, attr.PositionMode);
                 return;
             }
 
@@ -160,10 +160,18 @@ namespace KgmSlem.UnityEditor
         }
 
         // Add position handles of this field to unity editor scene view. This field is okay whether vector field or vector collection field.
-        private void SetVectorField(object obj, FieldInfo field, string label, bool localMode)
+        private void SetVectorField(object obj, FieldInfo field, string label, MoveToolMode mode)
         {
-            // If it's local mode, then origin point is set to target(MonoBehaviour) position.
-            Vector3 origin = localMode ? (this.target as MonoBehaviour).transform.position : Vector3.zero;
+            // the position origin.
+            Vector3 origin = Vector3.zero;
+
+            switch (mode)
+            {
+                case MoveToolMode.Local:
+                    // If it's local mode, the origin point is set to target(MonoBehaviour) position.
+                    origin = (this.target as MonoBehaviour).transform.position;
+                    break;
+            }
 
             var fieldType = field.FieldType;
 

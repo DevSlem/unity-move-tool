@@ -79,7 +79,7 @@ namespace KgmSlem.UnityEditor
             var indent = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 1;
 
-            string modeLabel = (attribute as MoveToolAttribute).LocalMode ? "Local" : "World";
+            string modeLabel = (attribute as MoveToolAttribute).PositionMode.ToString();
             EditorGUI.Foldout(position, false, $"Position Mode  -  {modeLabel}"); // Display information.
 
             // Set indent back to what it was
