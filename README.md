@@ -31,7 +31,7 @@ public class MoveToolTest : MonoBehaviour
 }
 ```
 
-![](/images/move-tool-vector3.webp)
+![](/Images/move-tool-vector3.webp)
 
 
 ### Vector2
@@ -42,7 +42,7 @@ public class MoveToolTest : MonoBehaviour
 
 > Note that `Vector2` type field only moves along the x and y axes.
 
-![](/images/move-tool-vector2.webp)
+![](/Images/move-tool-vector2.webp)
 
 ### Collection
 
@@ -53,7 +53,7 @@ While you click the **shift** key, you can control all elements of the list at o
 [MoveTool] public List<Vector3> vectorCollection = new List<Vector3>(); // Vector3[] array is also okay.
 ```
 
-![](/images/move-tool-collection.webp)
+![](/Images/move-tool-collection.webp)
 
 
 ### Non-Public field
@@ -100,7 +100,7 @@ public class CustomClass
 }
 ```
 
-![](/images/move-tool-custom-type-collection.webp)
+![](/Images/move-tool-custom-type-collection.webp)
 
 ### Serialize
 
