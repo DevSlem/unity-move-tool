@@ -4,7 +4,7 @@ using UnityEngine;
 namespace KgmSlem
 {
     /// <summary>
-    /// If you want to use position handles in unity editor scene view, then declare it for the field belonging to MonoBehaviour.
+    /// You can use move-tool for the vector in unity editor scene view.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public class MoveToolAttribute : PropertyAttribute
