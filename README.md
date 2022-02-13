@@ -5,6 +5,11 @@ You can use move-tool so easily by just defining ***some attributes***.
 
 > Please note that the any type that you want to use Move-Tool, it must be serializable.
 
+* [Basic usage](#basic-usage)
+* [MoveToolAttribute Properties](#movetoolattribute-properties)
+* [Move-Tool available custom type](#move-tool-available-custom-type)
+* [Editor](#editor)
+
 ## Basic usage
 
 You just define `MoveTool` attribute for a field for which you want to use position handle.  
@@ -41,7 +46,7 @@ public class MoveToolTest : MonoBehaviour
 
 ### Collection
 
-You can use move-tool to `Array` or `List<T>` collection where each elemnt is vector value.  
+You can use move-tool to `Array` or `List<T>` collection where each element is vector value.  
 While you click the **shift** key, you can control all elements of the list at once.
 
 ```c#
