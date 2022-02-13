@@ -125,6 +125,9 @@ Non-public vecor isn't always serialized. If you want to use move-tool for a non
 So, if you want to use both another custom editor and move-tool at the same time, you need to follow the code.
 
 ```cs
+using UnityEditor;
+using KgmSlem.UnityEditor;
+
 [CustomEditor(typeof(Another)), CanEditMultipleObjects]
 public class AnotherEditor : Editor
 {
@@ -148,7 +151,7 @@ public class AnotherEditor : Editor
 }
 ```
 
-If you don't use another custom editor for `Another` class, you don't need to create a `MoveToolEditor` editor instance.
+If you don't use another custom editor for `Another` class, you don't need to create a `KgmSlem.UnityEditor.MoveToolEditor` editor instance.
 
 > Please note that if you want to use another editor at the same time, you must create a `MoveToolEditor` instance, then call both `MoveToolEditor.OnEnalbe()` and `MoveToolEditor.OnSceneGUI()`.  
 > It's also okay to call `MoveToolEditor.SetMoveTool()` instead of `MoveToolEditor.OnSceneGUI()`.
