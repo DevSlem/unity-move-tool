@@ -130,6 +130,7 @@ Non-public vecor isn't always serialized. If you want to use move-tool for a non
 So, if you want to use both another custom editor and move-tool at the same time, you need to follow the code.
 
 ```cs
+#if UNITY_EDITOR
 using UnityEditor;
 using KgmSlem.UnityEditor;
 
@@ -154,9 +155,10 @@ public class AnotherEditor : Editor
         DestroyImmediate(moveToolEditor); // You need to destory it.
     }
 }
+#endif
 ```
-
+If you want to use another editor at the same time, you must create a `MoveToolEditor` instance, then call both `MoveToolEditor.OnEnalbe()` and `MoveToolEditor.OnSceneGUI()`. 
+It's also okay to call `MoveToolEditor.SetMoveTool()` instead of `MoveToolEditor.OnSceneGUI()`.  
 If you don't use another custom editor for `Another` class, you don't need to create a `KgmSlem.UnityEditor.MoveToolEditor` editor instance.
 
-> Please note that if you want to use another editor at the same time, you must create a `MoveToolEditor` instance, then call both `MoveToolEditor.OnEnalbe()` and `MoveToolEditor.OnSceneGUI()`.  
-> It's also okay to call `MoveToolEditor.SetMoveTool()` instead of `MoveToolEditor.OnSceneGUI()`.
+> Note that `KgmSlem.UnityEditor` namepsace only works during editor mode. So, you need to use conditional compilation of unity, which is like `UNITY_EDITOR` symbol.
