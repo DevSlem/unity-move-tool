@@ -94,15 +94,15 @@ namespace KgmSlem.UnityEditor
                         top.index = i;
 
                     index[0] = i;
-                    object obj = accessor.GetValue(fieldValue, index);
+                    object element = accessor.GetValue(fieldValue, index);
 
                     // Recursive call for each field declared in the current field type
                     foreach (var nextField in serializedFields)
-                        SetMoveToolAvailableField(top, (obj, nextField, i), attr, n + 1);
+                        SetMoveToolAvailableField(top, (element, nextField, i), attr, n + 1);
 
-                    // If current field is a value type, you must paste boxed obj to this field. It's because obj isn't the field instance itself, but new boxed instance.
+                    // If the current element is a value type, you must paste boxed element to this element.
                     if (elementType.IsValueType)
-                        accessor.SetValue(fieldValue, obj, index);
+                        accessor.SetValue(fieldValue, element, index);
                 }
             }
             // Single custom type field which isn't collection
@@ -117,7 +117,7 @@ namespace KgmSlem.UnityEditor
                 foreach (var nextField in serializedFields)
                     SetMoveToolAvailableField(top, (obj, nextField, -1), attr, n + 1);
 
-                // If current field is a value type, you must paste boxed obj to this field. It's because obj isn't the field instance itself, but new boxed instance.
+                // If the current field is a value type, you must paste boxed obj to this field. It's because obj isn't the field instance itself, but new boxed instance.
                 if (fieldType.IsValueType)
                     current.field.SetValue(current.obj, obj);
             }
