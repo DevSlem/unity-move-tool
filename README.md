@@ -1,67 +1,128 @@
 # Move-Tool for Unity
 
-## Introduction
-
-Move-Tool is a tool that makes you use position handles for vector in unity editor scene view.  
-If you want to use position handles, then define `MoveToolAttribute` for the field belonging to `MonoBehaviour`.  
+**Move-Tool** is a tool that makes you use position handles for vector in unity editor scene view.  
+You can use move-tool so easily by just defining ***some attributes***.
 
 > Please note that the any type that you want to use Move-Tool, it must be serializable.
 
+## Basic usage
 
-## Preview
+You just define `MoveTool` attribute for a field for which you want to use position handle.  
+The field is okay whether it's vector or vector collection.  
+It works only if the type of the field is either `Vector3` or `Vector2`.
 
-![preview1](/images/vector-movetool-control.webp)
+If you want to use ***attributes*** about move-tool, you must declare the following `using` directive.
 
+```c#
+using KgmSlem;
+```
 
-## MoveToolAttribute
-
-You just define it for the field for which you want to use position handle.  
-The field is okay whether it's vector or vector collection.
-
-
-### Example Code
+### Vector3
 
 ```c#
 public class MoveToolTest : MonoBehaviour
 {
-    [MoveTool, SerializeField] private Vector3 vector;
-    [MoveTool] public List<Vector3> list = new List<Vector3>();
+    [MoveTool] public Vector3 vector;
 }
 ```
 
-## MoveToolAvailableAttribute
+![](/images/move-tool-vector3.webp)
 
-If you want to use position handles for a custom type field that declare vector or other custom type field declaring vector, then you need to define `MoveToolAvailableAttribute` for the custom type.  
-It's okay whether it's class or struct.  
 
-### Example Code
+### Vector2
+
+```c#
+[MoveTool] public Vector2 vector2;
+```
+
+> Note that `Vector2` type field only moves along the x and y axes.
+
+![](/images/move-tool-vector2.webp)
+
+### Collection
+
+You can use move-tool to `Array` or `List<T>` collection where each elemnt is vector value.  
+While you click the **shift** key, you can control all elements of the list at once.
+
+```c#
+[MoveTool] public List<Vector3> vectorCollection = new List<Vector3>(); // Vector3[] array is also okay.
+```
+
+![](/images/move-tool-collection.webp)
+
+
+### Non-Public field
+
+You can only use move-tool for a serializable vector. 
+So, if you want to use move-tool for a ***non-public*** field like `private` or `protected`, you have to define `UnityEngine.SerializeField` attribute for the field.  
+See the following code.
+
+```c#
+[SerializeField, MoveTool] private Vector3 privateVector;
+[SerializeField, MoveTool] private List<Vector3> privateCollection = new List<Vector3>();
+```
+
+## MoveToolAttribute Properties
+
+`MoveToolAttribute` has the following properties.
+
+* `PositionMode` sets the coordinate space of the vector. If you set it to `MoveToolPosition.Local` enum value, the vector works in local coordinate. Default is world coordinate.
+* `LabelMode` is a enum flag property. You can display the move-tool label on unity editor through it. By default, the label is displayed on both scene and inspector view.
+* `Label` is a custom label that you want to display your own label instead of the default label. Default label is the field name for display.
+
+### Sample Code
+
+```c#
+[MoveTool(PositionMode = MoveToolPosition.Local, LabelMode = MoveToolLabel.SceneView, Label = "My Custom Label")]
+public Vector3 customPropertyVector;
+```
+
+## Move-Tool available custom type
+
+If you want to use move-tool for a custom type field which declare vector fields, you must define `System.Serializable` and `MoveToolAvailable` attributes for the type.  
+The custom type is okay whether class or struct.
 
 ```c#
 public class MoveToolTest : MonoBehaviour
 {
-    [MoveTool] public MyCustomType my;
+    [MoveTool] public List<CustomClass> customClasses = new List<CustomClass>();
 }
 
-[MoveToolAvailable, Serializable]
-public class MyCustomType
+[Serializable, MoveToolAvailable]
+public class CustomClass
 {
-    public Vector3 vector;
-    public List<Vector3> list = new List<Vector3>();
+    public List<Vector3> vectors = new List<Vector3>();
 }
 ```
 
-## MoveToolEditor
+![](/images/move-tool-custom-type-collection.webp)
 
-It's an editor for `MonoBehaviour`. It sets position handles for the fields that define `MoveToolAttribute`.  
-Just define `MoveToolAttribute` for the field, then you'll be able to control position handle for the field.
+### Serialize
 
-> Please note that if you want to use another editor at the same time, you must create a `MoveToolEditor` instance, then call both `MoveToolEditor.OnEnalbe()` and `MoveToolEditor.OnSceneGUI()`.  
-> It's also okay to call `MoveToolEditor.SetMoveTool()` instead of `MoveToolEditor.OnSceneGUI()`.
+A custom type for which you define `MoveToolAvailable` attribute must be serializable. So, if you don't want to use move-tools for the fields which is declared in the custom type, you should set the fields to be non-serializable.  
 
+> Note that you can only use move-tool for a serialized field.
 
-### Example Code
+See the following example.
 
-If you don't use another editor for `Another`, you don't need to create a `MoveToolEditor` editor.
+```c#
+[Serializable, MoveToolAvailable]
+public class CustomClass
+{
+    public Vector3 publicVector; // Can use move-tool.
+    [SerializeField] private Vector3 serializedPrivateVector; // Can use move-tool.
+    [NonSerialized] public Vector3 nonSerializePublicdVector; // Can't use move-tool.
+    private Vector3 privateVector; // Can't use move-tool.
+}
+```
+
+Public vector is always serialized. If you don't want to use move-tool for a public field, you need to define `System.NonSerialized` attribute for it.  
+Non-public vecor isn't always serialized. If you want to use move-tool for a non-public field, you need to define `UnityEngine.SerializeField` attribute for it.  
+
+## Editor
+
+`MoveTool` attribute works through `MonoBehaviour` editor class. So, if you use another custom editor class, it will conflicts with another custom editor and ignore `MoveTool` editor.  
+So, if you want to use both another custom editor and move-tool at the same time, you need to follow the code.
 
 ```cs
 [CustomEditor(typeof(Another)), CanEditMultipleObjects]
@@ -72,15 +133,22 @@ public class AnotherEditor : Editor
     private void OnSceneGUI()
     {
         if (moveToolEditor == null)
+        {
             moveToolEditor = Editor.CreateEditor(target, typeof(MoveToolEditor)) as MoveToolEditor;
+            moveToolEditor.OnEnable();
+        }
 
-        moveToolEditor.OnEnable();
         moveToolEditor.OnSceneGUI(); // It's also okay to call moveToolEditor.SetMoveTool() instead of it.
     }
 
     private void OnDisable()
     {
-        DestroyImmediate(moveToolEditor);
+        DestroyImmediate(moveToolEditor); // You need to destory it.
     }
 }
 ```
+
+If you don't use another custom editor for `Another` class, you don't need to create a `MoveToolEditor` editor instance.
+
+> Please note that if you want to use another editor at the same time, you must create a `MoveToolEditor` instance, then call both `MoveToolEditor.OnEnalbe()` and `MoveToolEditor.OnSceneGUI()`.  
+> It's also okay to call `MoveToolEditor.SetMoveTool()` instead of `MoveToolEditor.OnSceneGUI()`.
