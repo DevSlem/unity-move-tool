@@ -18,6 +18,13 @@ namespace KgmSlem.UnityEditor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attr = attribute as MoveToolAttribute;
+
+            if (!attr.LabelMode.HasFlag(MoveToolLabel.InspectorView))
+            {
+                EditorGUI.PropertyField(position, property, label, true);
+                return;
+            }
+
             string[] splitPath = property.propertyPath.Split('.');
 
             //EditorGUI.BeginProperty(position, label, property);

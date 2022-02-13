@@ -12,12 +12,12 @@ namespace KgmSlem
         /// <summary>
         /// You can control the position mode of move-tool. Default is world position mode.
         /// </summary>
-        public MoveToolMode PositionMode { get; set; } = MoveToolMode.World;
+        public MoveToolPosition PositionMode { get; set; } = MoveToolPosition.World;
 
         /// <summary>
-        /// If it's false, don't display label in the unity editor secne view. Default is true.
+        /// You can display the move-tool label on unity editor through this enum flags.
         /// </summary>
-        public bool LabelOn { get; set; } = true;
+        public MoveToolLabel LabelMode { get; set; } = MoveToolLabel.SceneView | MoveToolLabel.InspectorView;
 
         /// <summary>
         /// Custom Label. Default is field label for display.
@@ -32,9 +32,17 @@ namespace KgmSlem
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
     public class MoveToolAvailableAttribute : PropertyAttribute { }
 
-    public enum MoveToolMode
+    public enum MoveToolPosition
     {
         World,
         Local
+    }
+
+    [Flags]
+    public enum MoveToolLabel
+    {
+        None = 0,
+        SceneView = 1,
+        InspectorView = 2
     }
 }
