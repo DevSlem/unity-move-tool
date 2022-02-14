@@ -3,7 +3,8 @@
 **Move-Tool** is a tool that makes you use position handles for vector in unity editor scene view.  
 You can use move-tool so easily by just defining ***some attributes***.
 
-> Please note that the any type that you want to use Move-Tool, it must be serializable.
+> Note that it require **C# 7** or higher.  
+> If you want to use it in a lower version, you need to modify **pattern matching**(only can use in C# 7 or higher) part in `MoveToolEditor` class to `if` statement and simple type checking, but it'll make you tired.
 
 * [Basic usage](#basic-usage)
 * [MoveToolAttribute Properties](#movetoolattribute-properties)
@@ -21,6 +22,8 @@ If you want to use ***attributes*** about move-tool, you must declare the follow
 ```c#
 using KgmSlem;
 ```
+
+> Note that the any type that you want to use Move-Tool, it must be serializable.
 
 ### Vector3
 
