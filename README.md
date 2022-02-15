@@ -13,6 +13,9 @@ You can use move-tool so easily by just defining ***some attributes***.
 
 ## Releases
 
+It is recommended to use the latest, stable version [Release 2](https://github.com/kgmslem/unity-move-tool/tree/release-2).  
+[main](https://github.com/kgmslem/unity-move-tool/tree/main) version is untable because it's under active development.
+
 |    Version     | Release Date |                                 Source                                 |      C#       |
 | :------------: | :----------: | :--------------------------------------------------------------------: | :-----------: |
 | main(unstable) |      --      |      [main](https://github.com/kgmslem/unity-move-tool/tree/main)      | 7.0 or higher |
