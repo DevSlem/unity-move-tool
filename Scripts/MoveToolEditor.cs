@@ -12,7 +12,7 @@ namespace KgmSlem.UnityEditor
     /// <summary>
     /// It sets position handles for the fields that define MoveToolAttribute. Note that it's an editor for MonoBehaviour. 
     /// </summary>
-    [CustomEditor(typeof(MonoBehaviour), true)]
+    [CustomEditor(typeof(MonoBehaviour), false)]
     public class MoveToolEditor : Editor
     {
         private readonly GUIStyle style = new GUIStyle();
@@ -25,25 +25,36 @@ namespace KgmSlem.UnityEditor
 
         public void OnSceneGUI()
         {
-            SetMoveTool();
+            SetOnlyHasMoveToolAttribute();
         }
 
         /// <summary>
         /// Run MoveToolEditor. You can use move-tools of fields which define MoveToolAttribute in your monobehavior class.
         /// </summary>
-        public void SetMoveTool()
+        public bool SetMoveTool()
+        {
+            style.fontStyle = FontStyle.Bold;
+            style.normal.textColor = Color.white;
+
+            return SetOnlyHasMoveToolAttribute();
+        }
+
+        private bool SetOnlyHasMoveToolAttribute()
         {
             var targetType = target.GetType();
             var fields = GetSerializedFields(targetType);
+            bool isExisting = false;
             foreach (var field in fields)
             {
                 // Check if MoveToolAttribute is defined.
                 var attr = field.GetCustomAttribute<MoveToolAttribute>(false);
                 if (attr == null)
                     continue;
-
+                isExisting = true;
                 SetMoveToolAvailableField((field, -1), (this.target, field, -1), attr);
             }
+
+            return isExisting;
         }
 
         /// <summary>
