@@ -11,6 +11,17 @@ You can use move-tool so easily by just defining ***some attributes***.
 * [Move-Tool available custom type](#move-tool-available-custom-type)
 * [Editor](#editor)
 
+## Releases
+
+|    Version     | Release Date |                                 Source                                 |      C#       |
+| :------------: | :----------: | :--------------------------------------------------------------------: | :-----------: |
+| main(unstable) |      --      |      [main](https://github.com/kgmslem/unity-move-tool/tree/main)      | 7.0 or higher |
+|   Release 2    |  2022-02-16  | [release-2](https://github.com/kgmslem/unity-move-tool/tree/release-2) | 7.0 or higher |
+
+## Latest Update
+
+* Editor conflict problem is solved. Check [Editor](#editor) part.
+
 ## Basic usage
 
 You just define `MoveTool` attribute for a field for which you want to use position handle.  
@@ -129,39 +140,6 @@ Non-public vecor isn't always serialized. If you want to use move-tool for a non
 
 ## Editor
 
-`MoveTool` attribute works through `MonoBehaviour` editor class. So, if you use another custom editor class, it will conflicts with another custom editor and ignore `MoveTool` editor.  
-So, if you want to use both another custom editor and move-tool at the same time, you need to follow the code.
-
-```cs
-#if UNITY_EDITOR
-using UnityEditor;
-using KgmSlem.UnityEditor;
-
-[CustomEditor(typeof(Another)), CanEditMultipleObjects]
-public class AnotherEditor : Editor
-{
-    private MoveToolEditor moveToolEditor;
-
-    private void OnSceneGUI()
-    {
-        if (moveToolEditor == null)
-        {
-            moveToolEditor = Editor.CreateEditor(target, typeof(MoveToolEditor)) as MoveToolEditor;
-            moveToolEditor.OnEnable();
-        }
-
-        moveToolEditor.OnSceneGUI(); // It's also okay to call moveToolEditor.SetMoveTool() instead of it.
-    }
-
-    private void OnDisable()
-    {
-        DestroyImmediate(moveToolEditor); // You need to destory it.
-    }
-}
-#endif
-```
-If you want to use another editor at the same time, you must create a `MoveToolEditor` instance, then call both `MoveToolEditor.OnEnalbe()` and `MoveToolEditor.OnSceneGUI()`. 
-It's also okay to call `MoveToolEditor.SetMoveTool()` instead of `MoveToolEditor.OnSceneGUI()`.  
-If you don't use another custom editor for `Another` class, you don't need to create a `KgmSlem.UnityEditor.MoveToolEditor` editor instance.
-
-> Note that `KgmSlem.UnityEditor` namepsace only works during editor mode. So, you need to use conditional compilation of unity, which is like `UNITY_EDITOR` symbol.
+Now, you don't have to worry about editor coflict problem. It is solved.  
+You don't need to create `MoveToolEditor` instance for using concurrently `AnotherEditor` with it.  
+You just use normally `MoveTool` attribute.
