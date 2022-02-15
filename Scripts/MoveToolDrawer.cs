@@ -58,6 +58,16 @@ namespace KgmSlem.UnityEditor
                     return;
                 }
 
+                // for prefab game-object
+                if (Selection.activeGameObject.scene.name == null)
+                {
+                    foreach (var moveTool in container.Values)
+                        Object.DestroyImmediate(moveTool.editor);
+
+                    container.Clear();
+                    return;
+                }
+
                 var monoBehaviours = Selection.activeGameObject.GetComponents<MonoBehaviour>();
                 // If active target game-object is changed.
                 if (Selection.activeGameObject != targetGameObject)
