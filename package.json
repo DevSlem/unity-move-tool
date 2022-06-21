@@ -5,7 +5,7 @@
   "description": "You can use position handles of fields for which you define MoveToolAttribute in the unity editor scene view.",
   "unity": "2020.3",
   "documentationUrl": "https://github.com/DevSlem/unity-move-tool/blob/release-3.0.0/README.md",
-  "changelogUrl": "https://github.com/DevSlem/unity-move-tool/releases/tag/release-3.0.0",
+  "changelogUrl": "https://github.com/DevSlem/unity-move-tool/releases",
   "licensesUrl": "https://github.com/DevSlem/unity-move-tool/blob/main/LICENSE",
   "keywords": [
     "Move Tool",
