@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace KgmSlem
+namespace DevSlem
 {
     /// <summary>
     /// You can use move-tool for the vector in unity editor scene view.

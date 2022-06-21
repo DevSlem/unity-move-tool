@@ -13,17 +13,18 @@ You can use move-tool so easily by just defining ***some attributes***.
 
 ## Releases
 
-It is recommended to use the latest, stable version [Release 2](https://github.com/kgmslem/unity-move-tool/tree/release-2).  
-[main](https://github.com/kgmslem/unity-move-tool/tree/main) version is untable because it's under active development.
+It is recommended to use a latest, stable version.
+[main](https://github.com/DevSlem/unity-move-tool/tree/main) version is unstable because it's under active development.
 
-|    Version     | Release Date |                                 Source                                 |      C#       |
-| :------------: | :----------: | :--------------------------------------------------------------------: | :-----------: |
-| main(unstable) |      --      |      [main](https://github.com/kgmslem/unity-move-tool/tree/main)      | 7.0 or higher |
-|   Release 2    |  2022-02-16  | [release-2](https://github.com/kgmslem/unity-move-tool/tree/release-2) | 7.0 or higher |
+|                                        Version                                         | Release Date |                                     Source                                     |      C#       |     .Net Compatibility      |
+| :------------------------------------------------------------------------------------: | :----------: | :----------------------------------------------------------------------------: | :-----------: | :-------------------------: |
+|                                     main(unstable)                                     |      --      |          [main](https://github.com/DevSlem/unity-move-tool/tree/main)          | 7.0 or higher | .Net Standard 2.0 or higher |
+| [Release 3.0.0](https://github.com/DevSlem/unity-move-tool/releases/tag/release-3.0.0) |  2022-06-22  | [release-3.0.0](https://github.com/DevSlem/unity-move-tool/tree/release-3.0.0) | 7.0 or higher | .Net standard 2.0 or higher |
 
 ## Latest Update
 
-* Editor conflict problem is solved. Check [Editor](#editor) part.
+* `KgmSlem` namespace is changed to `DevSlem`.
+* You can use Unity package system.
 
 ## Basic usage
 
@@ -34,7 +35,7 @@ It works only if the type of the field is either `Vector3` or `Vector2`.
 If you want to use ***attributes*** about move-tool, you must declare the following `using` directive.
 
 ```c#
-using KgmSlem;
+using DevSlem;
 ```
 
 > Note that the any type that you want to use Move-Tool, it must be serializable.
@@ -42,14 +43,13 @@ using KgmSlem;
 ### Vector3
 
 ```c#
-public class MoveToolTest : MonoBehaviour
+public class MoveToolSample : MonoBehaviour
 {
     [MoveTool] public Vector3 vector;
 }
 ```
 
 ![](/Images/move-tool-vector3.webp)
-
 
 ### Vector2
 
@@ -72,10 +72,9 @@ While you click the **shift** key, you can control all elements of the list at o
 
 ![](/Images/move-tool-collection.webp)
 
-
 ### Non-Public field
 
-You can only use move-tool for a serializable vector. 
+You can only use move-tool for a serializable vector.
 So, if you want to use move-tool for a ***non-public*** field like `private` or `protected`, you have to define `UnityEngine.SerializeField` attribute for the field.  
 See the following code.
 
@@ -105,7 +104,7 @@ If you want to use move-tool for a custom type field which declare vector fields
 The custom type is okay whether class or struct.
 
 ```c#
-public class MoveToolTest : MonoBehaviour
+public class MoveToolSample : MonoBehaviour
 {
     [MoveTool] public List<CustomClass> customClasses = new List<CustomClass>();
 }
@@ -133,16 +132,16 @@ public class CustomClass
 {
     public Vector3 publicVector; // Can use move-tool.
     [SerializeField] private Vector3 serializedPrivateVector; // Can use move-tool.
-    [NonSerialized] public Vector3 nonSerializePublicdVector; // Can't use move-tool.
+    [NonSerialized] public Vector3 nonSerializedPublicVector; // Can't use move-tool.
     private Vector3 privateVector; // Can't use move-tool.
 }
 ```
 
 Public vector is always serialized. If you don't want to use move-tool for a public field, you need to define `System.NonSerialized` attribute for it.  
-Non-public vecor isn't always serialized. If you want to use move-tool for a non-public field, you need to define `UnityEngine.SerializeField` attribute for it.  
+Non-public vector isn't always serialized. If you want to use move-tool for a non-public field, you need to define `UnityEngine.SerializeField` attribute for it.  
 
 ## Editor
 
-Now, you don't have to worry about editor coflict problem. It is solved.  
+Now, you don't have to worry about editor conflict problem. It is solved.  
 You don't need to create `MoveToolEditor` instance for using concurrently `AnotherEditor` with it.  
 You just use normally `MoveTool` attribute.

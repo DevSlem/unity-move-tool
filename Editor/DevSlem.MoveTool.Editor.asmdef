@@ -1,0 +1,16 @@
+{
+    "name": "DevSlem.MoveTool.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a31c1babfbfb4654fb3f28ab7a1ed780"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

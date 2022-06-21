@@ -1,4 +1,4 @@
-namespace KgmSlem.Extensions
+namespace DevSlem.Extensions
 {
     public static class StringExtension
     {

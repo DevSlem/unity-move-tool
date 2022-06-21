@@ -1,0 +1,28 @@
+{
+  "name": "com.devslem.movetool",
+  "version": "3.0.0",
+  "displayName": "Move Tool",
+  "description": "You can use position handles of fields for which you define MoveToolAttribute in the unity editor scene view.",
+  "unity": "2020.3",
+  "documentationUrl": "https://github.com/DevSlem/unity-move-tool/blob/release-3.0.0/README.md",
+  "changelogUrl": "https://github.com/DevSlem/unity-move-tool/releases/tag/release-3.0.0",
+  "licensesUrl": "https://github.com/DevSlem/unity-move-tool/blob/main/LICENSE",
+  "keywords": [
+    "Move Tool",
+    "Position Handle",
+    "Unity Editor"
+  ],
+  "author": {
+    "name": "DevSlem",
+    "email": "devslem12@gmail.com",
+    "url": "https://github.com/DevSlem"
+  },
+  "hideInEditor": false,
+  "samples": [
+    {
+      "displayName": "MoveTool Sample",
+      "description": "You can see a MoveTool sample code and usages.",
+      "path": "Samples~/SamplesMoveTool"
+    }
+  ]
+}
