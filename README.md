@@ -26,6 +26,13 @@ It is recommended to use a latest, stable version.
 * `KgmSlem` namespace is changed to `DevSlem`.
 * You can use Unity package system.
 
+## Installation
+
+You can select 2 installation methods.
+
+* Clone the repository and add `package.json` file to your project through Unity Package Manager.
+* You can add directly the package from git URL to your project through Unity Package Manager.
+
 ## Basic usage
 
 You just define `MoveTool` attribute for a field for which you want to use position handle.  
