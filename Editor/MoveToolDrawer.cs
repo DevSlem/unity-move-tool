@@ -1,14 +1,14 @@
-#if UNITY_EDITOR
 //#define MOVETOOLDRAWER_DEPRECATED
 using System.Collections;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
-using KgmSlem.Extensions;
+using DevSlem.Extensions;
 
-namespace KgmSlem.UnityEditor
+namespace DevSlem.UnityEditor
 {
+#if UNITY_EDITOR
     /// <summary>
     /// Display the position mode of MoveToolAttribute on editor inspector.
     /// </summary>
@@ -303,5 +303,5 @@ namespace KgmSlem.UnityEditor
 #endif
 
     }
-}
 #endif
+}

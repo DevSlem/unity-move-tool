@@ -1,14 +1,14 @@
-#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using KgmSlem.Extensions;
+using DevSlem.Extensions;
 
-namespace KgmSlem.UnityEditor
+namespace DevSlem.UnityEditor
 {
+#if UNITY_EDITOR
     /// <summary>
     /// It sets position handles for the fields that define MoveToolAttribute. Note that it's an editor for MonoBehaviour. 
     /// </summary>
@@ -567,5 +567,5 @@ namespace KgmSlem.UnityEditor
             typeof(IEnumerable<Vector3>).IsAssignableFrom(type) || typeof(IEnumerable<Vector2>).IsAssignableFrom(type);
         #endregion
     }
-}
 #endif
+}
