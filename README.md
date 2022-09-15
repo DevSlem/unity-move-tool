@@ -24,6 +24,7 @@ It is recommended to use a latest, stable version.
 ## Latest Update
 
 * You can use **Move-Tool** for the `float` field.
+* Arrow of z direction of **Move-Tool** for the `Vector2` field has been removed. To be more intuitive!
 
 ## Installation
 
