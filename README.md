@@ -37,7 +37,7 @@ You can select 2 installation methods.
 
 You just define `MoveTool` attribute for a field for which you want to use position handle.  
 The field is okay whether it's vector or vector collection.  
-It works only if the type of the field is either `Vector3` or `Vector2`.
+It works only if the type of the field is one of the `Vector3`, `Vector2`, `float` type.
 
 If you want to use ***attributes*** about move-tool, you must declare the following `using` directive.
 
