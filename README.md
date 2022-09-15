@@ -19,12 +19,19 @@ It is recommended to use a latest, stable version.
 |                                        Version                                         | Release Date |                                     Source                                     |      C#       |     .Net Compatibility      |
 | :------------------------------------------------------------------------------------: | :----------: | :----------------------------------------------------------------------------: | :-----------: | :-------------------------: |
 |                                     main(unstable)                                     |      --      |          [main](https://github.com/DevSlem/unity-move-tool/tree/main)          | 7.0 or higher | .Net Standard 2.0 or higher |
-| [Release 3.0.0](https://github.com/DevSlem/unity-move-tool/releases/tag/release-3.0.0) |  2022-06-22  | [release-3.0.0](https://github.com/DevSlem/unity-move-tool/tree/release-3.0.0) | 7.0 or higher | .Net standard 2.0 or higher |
+| [Release 3.1.0](https://github.com/DevSlem/unity-move-tool/releases/tag/release-3.1.0) |  2022-09-16  | [release-3.1.0](https://github.com/DevSlem/unity-move-tool/tree/release-3.1.0) | 7.0 or higher | .Net standard 2.0 or higher |
 
 ## Latest Update
 
-* `KgmSlem` namespace is changed to `DevSlem`.
-* You can use Unity package system.
+* You can use **Move-Tool** for the `float` field.
+* Arrow of z direction of **Move-Tool** for the `Vector2` field has been removed. To be more intuitive!
+
+## Installation
+
+You can select 2 installation methods.
+
+* Clone the repository and add `package.json` file to your project through Unity Package Manager.
+* You can add directly the package from git URL to your project through Unity Package Manager. See the [Installing from a Git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html).
 
 ## Basic usage
 
@@ -60,6 +67,16 @@ public class MoveToolSample : MonoBehaviour
 > Note that `Vector2` type field only moves along the x and y axes.
 
 ![](/Images/move-tool-vector2.webp)
+
+### Float
+
+```c#
+[MoveTool] public float floatField;
+```
+
+> Note that `float` type field only moves along the x axis.
+
+![](/Images/move-tool-float.webp)
 
 ### Collection
 
