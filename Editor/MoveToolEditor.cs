@@ -15,7 +15,14 @@ namespace DevSlem.UnityEditor
     [CustomEditor(typeof(MonoBehaviour), false)]
     public class MoveToolEditor : Editor
     {
-        private readonly GUIStyle style = new GUIStyle();
+        private static readonly GUIStyle style = new GUIStyle();
+
+        private readonly static Vector3[] axisVector = new Vector3[3]
+        {
+            Vector3.right,
+            Vector3.up,
+            Vector3.forward
+        };
 
         public void OnEnable()
         {
@@ -221,11 +228,34 @@ namespace DevSlem.UnityEditor
             // Pattern matching to test the fieldValue to see if it matches a vector type.
             switch (fieldValue)
             {
+                case float oldFloat:
+                    field.SetValue(obj, SetPositionHandle(label, origin.x, oldFloat, obj, field, target));
+                    break;
                 case Vector3 oldVector3:
-                    field.SetValue(obj, SetPositionHandle(label, origin, oldVector3, obj, field));
+                    field.SetValue(obj, SetPositionHandle(label, origin, oldVector3, obj, field, target));
                     break;
                 case Vector2 oldVector2:
-                    field.SetValue(obj, SetPositionHandle(label, (Vector2)origin, oldVector2, obj, field));
+                    field.SetValue(obj, SetPositionHandle(label, (Vector2)origin, oldVector2, obj, field, target));
+                    break;
+                case IList<float> floatList:
+                    for (int i = 0; i < floatList.Count; i++)
+                    {
+                        string temp = label;
+                        if (!string.IsNullOrEmpty(label))
+                            temp += $" [{i}]";
+
+                        float oldValue = floatList[i];
+                        float newValue = SetPositionHandle(temp, origin.x, oldValue, obj, field, target);
+                        //SetHandleVector3(temp, origin, oldValue, obj, field, v => list[i] = v);
+                        if (shiftClicked && newValue != oldValue)
+                        {
+                            float delta = newValue - oldValue;
+                            for (int j = 0; j < floatList.Count; j++)
+                                floatList[j] += delta;
+                            break;
+                        }
+                        floatList[i] = newValue;
+                    }
                     break;
                 case IList<Vector3> vector3List:
                     for (int i = 0; i < vector3List.Count; i++)
@@ -235,7 +265,7 @@ namespace DevSlem.UnityEditor
                             temp += $" [{i}]";
 
                         Vector3 oldValue = vector3List[i];
-                        Vector3 newValue = SetPositionHandle(temp, origin, oldValue, obj, field);
+                        Vector3 newValue = SetPositionHandle(temp, origin, oldValue, obj, field, target);
                         //SetHandleVector3(temp, origin, oldValue, obj, field, v => list[i] = v);
                         if (shiftClicked && newValue != oldValue)
                         {
@@ -255,7 +285,7 @@ namespace DevSlem.UnityEditor
                             temp += $" [{i}]";
 
                         Vector2 oldValue = vector2List[i];
-                        Vector2 newValue = SetPositionHandle(temp, (Vector2)origin, oldValue, obj, field);
+                        Vector2 newValue = SetPositionHandle(temp, (Vector2)origin, oldValue, obj, field, target);
                         //SetHandleVector2(temp, origin, oldValue, obj, field, v => list[i] = v);
                         if (shiftClicked && newValue != oldValue)
                         {
@@ -426,12 +456,12 @@ namespace DevSlem.UnityEditor
         /// Create a position handle for the vector3 oldValue. If it's changed, record the taget.
         /// </summary>
         /// <returns>changed vector3</returns>
-        private Vector3 SetPositionHandle(string label, Vector3 origin, Vector3 oldValue, object obj, FieldInfo field)
+        public static Vector3 SetPositionHandle(string label, Vector3 origin, Vector3 oldValue, object obj, FieldInfo field, UnityEngine.Object target = null)
         {
             Handles.Label(origin + oldValue, label, style);
             EditorGUI.BeginChangeCheck();
             Vector3 newValue = Handles.PositionHandle(origin + oldValue, Quaternion.identity) - origin;
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck() && target != null)
             {
                 // enable ctrl + z & set dirty
                 Undo.RecordObject(target, $"{target.name}_{target.GetInstanceID()}_{obj.GetHashCode()}_{field.Name}");
@@ -447,12 +477,48 @@ namespace DevSlem.UnityEditor
         /// Create Position Handle for Vector2. If it's changed, record the target.
         /// </summary>
         /// <returns>changed vector2</returns>
-        private Vector2 SetPositionHandle(string label, Vector2 origin, Vector2 oldValue, object obj, FieldInfo field)
+        public static Vector2 SetPositionHandle(string label, Vector2 origin, Vector2 oldValue, object obj, FieldInfo field, UnityEngine.Object target = null)
         {
-            Handles.Label(origin + oldValue, label, style);
+            //Handles.Label(origin + oldValue, label, style);
+            //EditorGUI.BeginChangeCheck();
+            //Vector2 newValue = (Vector2)Handles.PositionHandle(origin + oldValue, Quaternion.identity) - origin;
+            //if (EditorGUI.EndChangeCheck())
+            //{
+            //    // enable ctrl + z & set dirty
+            //    Undo.RecordObject(target, $"{target.name}_{target.GetInstanceID()}_{obj.GetHashCode()}_{field.Name}");
+
+            //    // In the unity document, if the object may be part of a Prefab instance, we have to call this method.
+            //    // But, even if i don't call this method, it works well. I don't know the reason.
+            //    PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+            //}
+            //return newValue;
+
+            Color[] axisColor = new Color[]
+            {
+                Handles.xAxisColor,
+                Handles.yAxisColor,
+                Handles.zAxisColor
+            };
+
+            Vector3 position = origin + oldValue;
+            Handles.Label(position, label, style);
             EditorGUI.BeginChangeCheck();
-            Vector2 newValue = (Vector2)Handles.PositionHandle(origin + oldValue, Quaternion.identity) - origin;
-            if (EditorGUI.EndChangeCheck())
+
+            Handles.color = Handles.zAxisColor;
+            var size = HandleUtility.GetHandleSize(position) * 0.125f;
+            var temp = Handles.Slider2D(position + new Vector3(1f, 1f) * size, Vector3.forward, axisVector[0], axisVector[1], size, Handles.RectangleHandleCap, new Vector2(EditorSnapSettings.move[0], EditorSnapSettings.move[1]))
+                - new Vector3(1f, 1f) * size;
+            position = (position - temp).sqrMagnitude > 0.001f ? temp : position;
+
+            for (int axis = 0; axis < 2; axis++)
+            {
+                Handles.color = axisColor[axis];
+                Vector3 dir = axisVector[axis];
+                position = Handles.Slider(position, dir, HandleUtility.GetHandleSize(position), Handles.ArrowHandleCap, EditorSnapSettings.move[axis])
+                - (Vector3)origin;
+            }
+
+            if (EditorGUI.EndChangeCheck() && target != null)
             {
                 // enable ctrl + z & set dirty
                 Undo.RecordObject(target, $"{target.name}_{target.GetInstanceID()}_{obj.GetHashCode()}_{field.Name}");
@@ -461,7 +527,27 @@ namespace DevSlem.UnityEditor
                 // But, even if i don't call this method, it works well. I don't know the reason.
                 PrefabUtility.RecordPrefabInstancePropertyModifications(target);
             }
-            return newValue;
+            return position;
+        }
+
+        public static float SetPositionHandle(string label, float origin, float oldValue, object obj, FieldInfo field, UnityEngine.Object target = null)
+        {
+            var position = new Vector3(origin + oldValue, 0f, 0f);
+            Handles.Label(position, label, style);
+            EditorGUI.BeginChangeCheck();
+            Handles.color = Handles.xAxisColor;
+            Vector3 newValue = Handles.Slider(position, Vector3.right, HandleUtility.GetHandleSize(position), Handles.ArrowHandleCap, EditorSnapSettings.move.x) 
+                - new Vector3(origin, 0f, 0f);
+            if (EditorGUI.EndChangeCheck() && target != null)
+            {
+                // enable ctrl + z & set dirty
+                Undo.RecordObject(target, $"{target.name}_{target.GetInstanceID()}_{obj.GetHashCode()}_{field.Name}");
+
+                // In the unity document, if the object may be part of a Prefab instance, we have to call this method.
+                // But, even if i don't call this method, it works well. I don't know the reason.
+                PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+            }
+            return newValue.x;
         }
 
         /// <summary>
@@ -494,7 +580,7 @@ namespace DevSlem.UnityEditor
         /// <summary>
         /// Check wheter obj is vector type instance or vector type collection.
         /// </summary>
-        private bool IsVector(object obj) => obj is Vector3 || obj is Vector2 || obj is IList<Vector3> || obj is IList<Vector2>;
+        private bool IsVector(object obj) => obj is Vector3 || obj is Vector2 || obj is float || obj is IList<Vector3> || obj is IList<Vector2> || obj is IList<float>;
 
 
         /// <summary>
